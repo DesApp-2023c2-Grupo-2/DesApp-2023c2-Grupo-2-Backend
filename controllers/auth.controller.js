@@ -1,4 +1,8 @@
 const Usuario = require("../models/usuario");
+const dotenv = require('dotenv');
+const jwt = require('jsonwebtoken');
+
+dotenv.config()
 
 module.exports.register = async (req, res) => {
   const data = new Usuario({
@@ -32,8 +36,13 @@ module.exports.login = async (req, res) => {
     if (!passValidated) {
       return res.status(401).json({ auth: "Fallo", token: null });
     }
-    let {contrasenia, admin, ...clean} = user._doc    
-    return res.json(clean);
+    let {contrasenia, admin, ...clean} = user._doc 
+    const token = jwt.sign({id: user._id}, process.env.JWT_SECRET_KEY,{
+      expiresIn: 60 * 60 * 24
+    })
+    console.log(token)
+    return res.json({auth: true, token: token, rol: user.rol});  
+    //return res.json(clean);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

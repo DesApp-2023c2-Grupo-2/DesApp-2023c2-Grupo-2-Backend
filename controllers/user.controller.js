@@ -79,3 +79,13 @@ module.exports.deleteUserById = async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 };
+//Obtener nombre y apellido
+module.exports.getFullname = async (req, res) => {
+  try {
+    console.log(req.userId)
+    const data = await Usuario.find(req.userId);
+    return res.json(data);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
