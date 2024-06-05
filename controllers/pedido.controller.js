@@ -136,7 +136,7 @@ module.exports.getPedidosByDni = async (req, res) => {
     edificio,
     page,
     validsOnly,
-    perPage = 8,
+    perPage = 12,
   } = req.query;
   let query = {};
   try {
@@ -259,7 +259,7 @@ module.exports.getPedidosByDates = async (req, res) => {
     edificio,
     page,
     validsOnly,
-    perPage = 8,
+    perPage = 12,
   } = req.query;
 
   try {
@@ -376,3 +376,5 @@ module.exports.countPedidos = async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 };
+
+
