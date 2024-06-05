@@ -112,7 +112,7 @@ module.exports.getPedidosByDni = async (req, res) => {
     console.log("req pedidos dni: ",req.params);
     const dni = req.params.dni;
     const page = req.params.page;
-    const perPage = 8;
+    const perPage = 12;
     const totalCount = await Pedido.countDocuments({ "docente.dni": dni }); // Obtener el total de documentos que coinciden con la consulta
 
     const data = await Pedido.find({ "docente.dni": dni })
@@ -191,7 +191,7 @@ module.exports.getPedidosByDate = async (req, res) => {
 };
 
 module.exports.getPedidosByDates = async (req, res) => {
-  const { fecha_utilizacion, tipo_pedido, fecha_inicio, fecha_fin, edificio, page, perPage = 8 } = req.query;
+  const { fecha_utilizacion, tipo_pedido, fecha_inicio, fecha_fin, edificio, page, perPage = 12 } = req.query;
   console.log("entro aca by dates");
   try {
     let query = {};
