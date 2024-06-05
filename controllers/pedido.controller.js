@@ -109,6 +109,7 @@ async function startDailyUpdate() {
 //Get All by dni docente
 module.exports.getPedidosByDni = async (req, res) => {
   try {
+    console.log("req pedidos dni: ",req.params);
     const dni = req.params.dni;
     const page = req.params.page;
     const perPage = 8;
@@ -191,7 +192,7 @@ module.exports.getPedidosByDate = async (req, res) => {
 
 module.exports.getPedidosByDates = async (req, res) => {
   const { fecha_utilizacion, tipo_pedido, fecha_inicio, fecha_fin, edificio, page, perPage = 8 } = req.query;
-
+  console.log("entro aca by dates");
   try {
     let query = {};
 
