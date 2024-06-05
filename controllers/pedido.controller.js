@@ -109,7 +109,6 @@ async function startDailyUpdate() {
 //Get All by dni docente
 module.exports.getPedidosByDni = async (req, res) => {
   try {
-    console.log("req pedidos dni: ",req.params);
     const dni = req.params.dni;
     const page = req.params.page;
     const perPage = 12;
