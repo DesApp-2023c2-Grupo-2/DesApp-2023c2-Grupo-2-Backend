@@ -192,7 +192,6 @@ module.exports.getPedidosByDate = async (req, res) => {
 
 module.exports.getPedidosByDates = async (req, res) => {
   const { fecha_utilizacion, tipo_pedido, fecha_inicio, fecha_fin, edificio, page, perPage = 12 } = req.query;
-  console.log("entro aca by dates");
   try {
     let query = {};
 
