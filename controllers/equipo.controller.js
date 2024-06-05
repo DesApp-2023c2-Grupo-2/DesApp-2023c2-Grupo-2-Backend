@@ -7,7 +7,8 @@ module.exports.crearEquipo = async (req, res) => {
     stock: req.body.stock,
     unidadMedida: req.body.unidadMedida,    
     enUso: [],
-    enReparacion: 0
+    enReparacion: 0,
+    disponible: req.body.disponible,
   });
 
   try {
@@ -27,7 +28,10 @@ module.exports.getEquipo = async (req, res) => {
 
     if (buscar) {
       consulta = {
-        $or: [{ descripcion: { $regex: buscar, $options: "i" } }],
+        $and: [
+          { descripcion: { $regex: buscar, $options: "i" } },
+          { disponible: true } 
+        ],
       };
     }
 

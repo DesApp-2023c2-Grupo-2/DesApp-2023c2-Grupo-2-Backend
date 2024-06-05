@@ -16,7 +16,7 @@ const router = express.Router();
 
 router.post("/post",verifyToken ,postPedido);
 router.get("/getAll",verifyToken ,getPedidos);
-router.get("/getAllByDni/:dni",verifyToken ,getPedidosByDni);
+router.get("/getAllByDni/",verifyToken ,getPedidosByDni);
 router.get("/getAllByState/:tipo_pedido",verifyToken ,getPedidosByState);
 router.get("/getAllUseDate/:fecha_utilizacion",verifyToken ,getPedidosByDate);
 router.get("/",verifyToken ,getPedidosByDates);

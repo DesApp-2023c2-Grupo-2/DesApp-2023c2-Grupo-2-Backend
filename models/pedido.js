@@ -48,6 +48,12 @@ const dataSchema = new mongoose.Schema({
     required: true,
     type: Number,
   },
+  
+  vigente: {
+    required: true,
+    type: Boolean,
+    default: true
+  },
   lista_equipos: [
     {
       cantidad: {
@@ -98,11 +104,6 @@ const dataSchema = new mongoose.Schema({
       material: { type: mongoose.Schema.Types.ObjectId, ref: "Material" },
     },
   ],
-  vigente: {
-    required: true,
-    type: Boolean,
-    default: true
-  },
 });
 
 module.exports = mongoose.model("Pedido", dataSchema);

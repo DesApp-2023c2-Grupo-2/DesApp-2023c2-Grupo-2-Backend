@@ -2,50 +2,69 @@ const Pedido = require("../models/pedido");
 const Equipo = require("../models/equipo");
 const Reactivo = require("../models/reactivo");
 const Material = require("../models/material");
-const dailyUpdate = require('../common/dailyValidityCheck');
+const dailyUpdate = require("../common/dailyValidityCheck");
 
 //Verbos para pedidos
 //Post de un pedido
 module.exports.postPedido = async (req, res) => {
-  const {equipos_update, materiales_update, reactivos_update, ...pedido} = req.body
+  const { equipos_update, materiales_update, reactivos_update, ...pedido } =
+    req.body;
   const data = new Pedido(pedido);
   try {
-    req.body.lista_equipos.map(async e => {
-      if (req.body.equipos_update.some(i => i._id === e.equipo)) {
-        const toUpdate = req.body.equipos_update.find(i => i._id === e.equipo);
-        const { enUso } = toUpdate
+    req.body.lista_equipos.map(async (e) => {
+      if (req.body.equipos_update.some((i) => i._id === e.equipo)) {
+        const toUpdate = req.body.equipos_update.find(
+          (i) => i._id === e.equipo
+        );
+        const { enUso } = toUpdate;
         const options = { new: true };
         try {
-          await Equipo.findByIdAndUpdate(e.equipo, { $set: { enUso } }, options);
+          await Equipo.findByIdAndUpdate(
+            e.equipo,
+            { $set: { enUso } },
+            options
+          );
         } catch (error) {
           console.error(`Error al actualizar el equipo: ${e.equipo}`, error);
         }
       }
-    }); 
-    req.body.lista_materiales.map(async e => {
-      if (req.body.materiales_update.some(i => i._id === e.material)) {
-        const toUpdate = req.body.materiales_update.find(i => i._id === e.material);
-        const { enUso } = toUpdate
+    });
+    req.body.lista_materiales.map(async (e) => {
+      if (req.body.materiales_update.some((i) => i._id === e.material)) {
+        const toUpdate = req.body.materiales_update.find(
+          (i) => i._id === e.material
+        );
+        const { enUso } = toUpdate;
         const options = { new: true };
         try {
-          await Material.findByIdAndUpdate(e.material, { $set: { enUso } }, options);
+          await Material.findByIdAndUpdate(
+            e.material,
+            { $set: { enUso } },
+            options
+          );
         } catch (error) {
           console.error(`Error al actualizar el equipo: ${e.material}`, error);
         }
       }
-    }); 
-    req.body.lista_reactivos.map(async e => {
-      if (req.body.reactivos_update.some(i => i._id === e.reactivo)) {
-        const toUpdate = req.body.reactivos_update.find(i => i._id === e.reactivo);
-        const { enUso } = toUpdate
+    });
+    req.body.lista_reactivos.map(async (e) => {
+      if (req.body.reactivos_update.some((i) => i._id === e.reactivo)) {
+        const toUpdate = req.body.reactivos_update.find(
+          (i) => i._id === e.reactivo
+        );
+        const { enUso } = toUpdate;
         const options = { new: true };
         try {
-          await Reactivo.findByIdAndUpdate(e.reactivo, { $set: { enUso } }, options);
+          await Reactivo.findByIdAndUpdate(
+            e.reactivo,
+            { $set: { enUso } },
+            options
+          );
         } catch (error) {
           console.error(`Error al actualizar el equipo: ${e.reactivo}`, error);
         }
       }
-    }); 
+    });
     const dataToSave = await data.save();
     return res.status(200).json(dataToSave);
   } catch (error) {
@@ -54,7 +73,7 @@ module.exports.postPedido = async (req, res) => {
 };
 
 module.exports.getPedidos = async (req, res) => {
-  //await startDailyUpdate();
+  await startDailyUpdate();
   const validsOnly = req.params.validsOnly;
 
   try {
@@ -66,7 +85,7 @@ module.exports.getPedidos = async (req, res) => {
       }
     };
     const pedidos = await data();
-    
+
     const populatedPedidos = await Pedido.populate(pedidos, [
       {
         path: "lista_equipos.equipo",
@@ -81,7 +100,7 @@ module.exports.getPedidos = async (req, res) => {
         select: "descripcion cas",
       },
     ]);
-    
+
     return res.json(populatedPedidos);
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -93,28 +112,69 @@ async function startDailyUpdate() {
 
   // Retornar una nueva promesa
   return new Promise((resolve, reject) => {
-      // Manejar el evento 'start'
-      dailyUpdate.on('start', () => {
-          console.log('Tarea cron iniciada correctamente');
-          resolve(); // Resuelve la promesa cuando la tarea cron se inicia
-      });
+    // Manejar el evento 'start'
+    dailyUpdate.on("start", () => {
+      console.log("Tarea cron iniciada correctamente");
+      resolve(); // Resuelve la promesa cuando la tarea cron se inicia
+    });
 
-      // Manejar el evento 'error'
-      dailyUpdate.on('error', (error) => {
-          console.error('Error al iniciar la tarea cron:', error);
-          reject(error); // Rechaza la promesa si hay un error al iniciar la tarea cron
-      });
+    // Manejar el evento 'error'
+    dailyUpdate.on("error", (error) => {
+      console.error("Error al iniciar la tarea cron:", error);
+      reject(error); // Rechaza la promesa si hay un error al iniciar la tarea cron
+    });
   });
 }
 //Get All by dni docente
 module.exports.getPedidosByDni = async (req, res) => {
+  const {
+    dni,
+    fecha_utilizacion,
+    tipo_pedido,
+    fecha_inicio,
+    fecha_fin,
+    edificio,
+    page,
+    validsOnly,
+    perPage = 12,
+  } = req.query;
+  let query = {};
   try {
-    const dni = req.params.dni;
-    const page = req.params.page;
-    const perPage = 12;
-    const totalCount = await Pedido.countDocuments({ "docente.dni": dni }); // Obtener el total de documentos que coinciden con la consulta
+    if (fecha_utilizacion) {
+      const fechaUtilizacionStart = new Date(fecha_utilizacion);
+      fechaUtilizacionStart.setUTCHours(0, 0, 0, 0);
+      const fechaUtilizacionEnd = new Date(fecha_utilizacion);
+      fechaUtilizacionEnd.setUTCHours(23, 59, 59, 999);
 
-    const data = await Pedido.find({ "docente.dni": dni })
+      query.fecha_utilizacion = {
+        $gte: fechaUtilizacionStart,
+        $lte: fechaUtilizacionEnd,
+      };
+    }
+
+    if (tipo_pedido) {
+      query.tipo_pedido = tipo_pedido;
+    }
+    if (fecha_inicio && fecha_fin) {
+      const fechaUtilizacionStart = new Date(fecha_inicio);
+      fechaUtilizacionStart.setUTCHours(0, 0, 0, 0);
+      const fechaUtilizacionEnd = new Date(fecha_fin);
+      fechaUtilizacionEnd.setUTCHours(23, 59, 59, 999);
+
+      query.fecha_utilizacion = {
+        $gte: fechaUtilizacionStart,
+        $lte: fechaUtilizacionEnd,
+      };
+    }
+    if (edificio) {
+      query.edificio = edificio;
+    }
+    if (validsOnly == "true") {
+      query.vigente = true;
+    }
+    const totalCount = await Pedido.countDocuments({...query, "docente.dni": dni}); // Obtener el total de documentos que coinciden con la consulta
+
+    const data = await Pedido.find({...query, "docente.dni": dni})
       .populate({
         path: "lista_equipos.equipo",
         select: "descripcion clase",
@@ -127,6 +187,7 @@ module.exports.getPedidosByDni = async (req, res) => {
         path: "lista_reactivos.reactivo",
         select: "descripcion cas",
       })
+      .sort({ fecha_utilizacion: -1 })
       .skip((page - 1) * perPage) // Saltar los documentos según la página solicitada
       .limit(perPage); // Limitar la cantidad de documentos por página
 
@@ -190,7 +251,17 @@ module.exports.getPedidosByDate = async (req, res) => {
 };
 
 module.exports.getPedidosByDates = async (req, res) => {
-  const { fecha_utilizacion, tipo_pedido, fecha_inicio, fecha_fin, edificio, page, perPage = 12 } = req.query;
+  const {
+    fecha_utilizacion,
+    tipo_pedido,
+    fecha_inicio,
+    fecha_fin,
+    edificio,
+    page,
+    validsOnly,
+    perPage = 12,
+  } = req.query;
+
   try {
     let query = {};
 
@@ -223,7 +294,9 @@ module.exports.getPedidosByDates = async (req, res) => {
     if (edificio) {
       query.edificio = edificio;
     }
-
+    if (validsOnly == "true") {
+      query.vigente = true;
+    }
     const totalCount = await Pedido.countDocuments(query); // Obtener el total de documentos que coinciden con la consulta
 
     const pedidos = await Pedido.find(query)
@@ -239,6 +312,7 @@ module.exports.getPedidosByDates = async (req, res) => {
         path: "lista_reactivos.reactivo",
         select: "descripcion cas",
       })
+      .sort({ fecha_utilizacion: -1 })  
       .skip((page - 1) * perPage) // Saltar los documentos según la página solicitada
       .limit(perPage); // Limitar la cantidad de documentos por página
 
@@ -296,9 +370,7 @@ module.exports.deletePedidoById = async (req, res) => {
 
 module.exports.countPedidos = async (req, res) => {
   try {
-    console.log("1")
     const count = await Pedido.countDocuments({});
-    console.log(count)
     return res.json({ count });
   } catch (error) {
     return res.status(400).json({ message: error.message });

@@ -7,7 +7,8 @@ module.exports.crearReactivo = async (req, res) => {
     cas: req.body.cas,
     descripcion: req.body.descripcion,
     stock: req.body.stock,
-    enReparacion: 0
+    enReparacion: 0,
+    disponible: req.body.disponible
   });
 
   try {
@@ -27,10 +28,15 @@ module.exports.getReactivo = async (req, res) => {
 
     if (buscar) {
       consulta = {
-        $or: [
-          { descripcion: { $regex: buscar, $options: "i" } },
-          { cas: { $regex: buscar, $options: "i" } },
-        ],
+        $and: [
+          { 
+            $or: [
+              { descripcion: { $regex: buscar, $options: "i" } },
+              { cas: { $regex: buscar, $options: "i" } }
+            ]
+          },
+          { disponible: true } 
+        ]
       };
     }
 
